@@ -329,3 +329,45 @@ while not game_over:
                 break
         return column, value
 
+def draw_board(board):
+    for c in range(COLUMNS):
+        for r in range(ROWS):
+            pygame.draw.rect(screen, (255,255,0), (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
+            pygame.draw.circle(screen, (255,255,255) , (
+            int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+
+    for c in range(COLUMNS):
+        for r in range(ROWS):
+            if board[r][c] == PLAYER_PIECE:
+                pygame.draw.circle(screen, (255,0,0), (
+                int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+            elif board[r][c] == AGENT_PIECE:
+                pygame.draw.circle(screen, (0,0,255), (
+                int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+    pygame.display.update()
+
+
+board = create_board()
+print_board(board)
+game_over = False
+
+pygame.init()
+
+SQUARESIZE = 80
+
+width = COLUMNS * SQUARESIZE
+height = (ROWS + 1) * SQUARESIZE
+
+size = (width, height)
+
+RADIUS = int(SQUARESIZE / 2 - 5)
+
+screen = pygame.display.set_mode(size)
+
+draw_board(board)
+pygame.display.update()
+
+myfont = pygame.font.SysFont("arial", 75)
+
+turn = random.randint(PLAYER, AI)
+
