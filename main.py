@@ -369,5 +369,52 @@ pygame.display.update()
 
 myfont = pygame.font.SysFont("arial", 75)
 
+
+
+
 turn = random.randint(PLAYER, AI)
 
+
+def minimax(board, depth, maximizingPlayer):
+
+    valid_moves = get_valid_moves(board)
+    is_terminal = is_terminal_node(board)
+    if depth == 0 or is_terminal:
+        if is_terminal:
+            if winning_move(board, AGENT_PIECE):
+                return None, 100000000000000
+            elif winning_move(board, PLAYER_PIECE):
+                return None, -10000000000000
+            else:  # Game is over, no more valid moves
+                return None, 0
+        else:  # Depth is zero
+            return None, score_position(board, AGENT_PIECE)
+    if maximizingPlayer:
+        value = -math.inf
+        column = None
+        for col in valid_moves:
+            row = get_next_open_row(board, col)
+            if row is None:
+                continue
+            b_copy = board.copy()
+            drop_piece(b_copy, row, col, AGENT_PIECE)
+            new_score = minimax(b_copy, depth - 1, False)[1]
+            if new_score > value:
+                value = new_score
+                column = col
+        return column, value
+
+    else:  # Minimizing player
+        value = math.inf
+        column = None
+        for col in valid_moves:
+            row = get_next_open_row(board, col)
+            if row is None:
+                continue
+            b_copy = board.copy()
+            drop_piece(b_copy, row, col, PLAYER_PIECE)
+            new_score = minimax(b_copy, depth - 1, True)[1]
+            if new_score < value:
+                value = new_score
+                column = col
+        return column, value
