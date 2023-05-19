@@ -329,3 +329,129 @@ while not game_over:
                 break
         return column, value
 
+    # GUI of algo and difficulty
+
+import tkinter as tk
+
+# Global variable for difficulty
+difficulty = 0
+Algo =-1
+# Functions for algorithms
+def algo1():
+    global Algo
+    Algo=1
+    print("Running MiniMax")
+
+def algo2():
+    global Algo
+    Algo = 2
+    print("Running Alpha Beta ")
+
+# Function to set difficulty and close window
+def set_difficulty(value):
+    global difficulty
+    if value == "easy":
+        difficulty = 1
+    elif value == "medium":
+        difficulty = 2
+    elif value == "hard":
+        difficulty = 4
+    window.destroy()
+
+# Create window
+
+window = tk.Tk()
+window.title("Choose game difficulty and algorithm")
+window.geometry("500x400")
+
+# Difficulty selection
+tk.Label(window, text="Choose difficulty:").pack()
+diff_var = tk.StringVar(value="easy")
+tk.Radiobutton(window, text="Easy", variable=diff_var, value="easy").pack()
+tk.Radiobutton(window, text="Medium", variable=diff_var, value="medium").pack()
+tk.Radiobutton(window, text="Hard", variable=diff_var, value="hard").pack()
+
+# Algorithm selection
+tk.Label(window, text="Choose algorithm:").pack()
+tk.Button(window, text="MiniMax", command=algo1).pack()
+tk.Button(window, text="Alpha Beta", command=algo2).pack()
+
+# Submit button
+tk.Button(window, text="start game", command=lambda: set_difficulty(diff_var.get())).pack()
+
+window.mainloop()
+
+if(Algo==1):
+
+    print(" \n Hello from minimax with difficulty  ", difficulty)
+
+
+elif(Algo==2):
+
+    print(" \n Hello from alpha beta with difficulty  ", difficulty)
+
+while not game_over:
+
+    pygame.display.update()
+
+    if turn == PLAYER:
+
+        pygame.time.wait(800)
+
+        col=random.randint(0,6)
+
+        if isValidLocation(board, col):
+            row = get_next_open_row(board, col)
+            drop_piece(board, row, col, PLAYER_PIECE)
+
+
+
+    if winning_move(board, PLAYER_PIECE):
+        label = myfont.render("Player 1 WON ..", 1, (255,0,0))
+        screen.blit(label, (40, 10))
+        game_over = True
+
+    turn += 1
+    turn = turn % 2
+
+    print_board(board)
+
+    print("\n")
+    draw_board(board)
+
+
+    if turn == AI and not game_over:
+
+        pygame.time.wait(800)
+
+
+        if(Algo==1):
+
+            col, score = minimax(board, difficulty, True)
+        elif(Algo==2):
+
+            col, minimax_score = minimax_alpha_beta(board, difficulty, -math.inf, math.inf, True)
+
+
+
+        if isValidLocation(board, col):
+
+            row = get_next_open_row(board, col)
+            drop_piece(board, row, col, AGENT_PIECE)
+
+            if winning_move(board, AGENT_PIECE):
+                label = myfont.render("AI WON..", 1, (0,0,255))
+
+                screen.blit(label, (40, 10))
+                game_over = True
+
+            print_board(board)
+            print("\n")
+            draw_board(board)
+
+            turn += 1
+            turn = turn % 2
+
+
+    if game_over:
+        pygame.time.wait(3000)
