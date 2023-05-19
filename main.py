@@ -375,6 +375,10 @@ myfont = pygame.font.SysFont("arial", 75)
 turn = random.randint(PLAYER, AI)
 
 
+                column = col
+        return column, value
+
+    
 def minimax(board, depth, maximizingPlayer):
 
     valid_moves = get_valid_moves(board)
@@ -417,4 +421,4 @@ def minimax(board, depth, maximizingPlayer):
             if new_score < value:
                 value = new_score
                 column = col
-        return column, value
+        return column, value    
