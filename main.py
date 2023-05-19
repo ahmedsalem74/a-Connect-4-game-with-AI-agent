@@ -185,6 +185,35 @@ myfont = pygame.font.SysFont("arial", 75)
 turn = random.randint(PLAYER, AI)
 
 
+# GUI of algo and difficulty
+
+import tkinter as tk
+
+# Global variable for difficulty
+difficulty = 0
+Algo =-1
+# Functions for algorithms
+def algo1():
+    global Algo
+    Algo=1
+    print("Running MiniMax")
+
+def algo2():
+    global Algo
+    Algo = 2
+    print("Running Alpha Beta ")
+
+# Function to set difficulty and close window
+def set_difficulty(value):
+    global difficulty
+    if value == "easy":
+        difficulty = 1
+    elif value == "medium":
+        difficulty = 2
+    elif value == "hard":
+        difficulty = 4
+    window.destroy()
+
 # Create window
 
 window = tk.Tk()
