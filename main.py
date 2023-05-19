@@ -158,7 +158,112 @@ def pick_best_move(board, piece):
 
     return best_col
 
+    
+def minimax(board, depth, maximizingPlayer):
 
+    valid_moves = get_valid_moves(board)
+    is_terminal = is_terminal_node(board)
+    if depth == 0 or is_terminal:
+        if is_terminal:
+            if winning_move(board, AGENT_PIECE):
+                return None, 100000000000000
+            elif winning_move(board, PLAYER_PIECE):
+                return None, -10000000000000
+            else:  # Game is over, no more valid moves
+                return None, 0
+        else:  # Depth is zero
+            return None, score_position(board, AGENT_PIECE)
+    if maximizingPlayer:
+        value = -math.inf
+        column = None
+        for col in valid_moves:
+            row = get_next_open_row(board, col)
+            if row is None:
+                continue
+            b_copy = board.copy()
+            drop_piece(b_copy, row, col, AGENT_PIECE)
+            new_score = minimax(b_copy, depth - 1, False)[1]
+            if new_score > value:
+                value = new_score
+                column = col
+        return column, value
+
+    else:  # Minimizing player
+        value = math.inf
+        column = None
+        for col in valid_moves:
+            row = get_next_open_row(board, col)
+            if row is None:
+                continue
+            b_copy = board.copy()
+            drop_piece(b_copy, row, col, PLAYER_PIECE)
+            new_score = minimax(b_copy, depth - 1, True)[1]
+            if new_score < value:
+                value = new_score
+                column = col
+        return column, value    
+
+def minimax_alpha_beta(board, depth, alpha, beta, maximizingPlayer):
+    valid_moves = get_valid_moves(board)
+    is_terminal = is_terminal_node(board)
+    if depth == 0 or is_terminal:
+        if is_terminal:
+            if winning_move(board, AGENT_PIECE):
+                return (None, 100000000000000)
+            elif winning_move(board, PLAYER_PIECE):
+                return (None, -10000000000000)
+            else:  # Game is over, no more valid moves
+                return (None, 0)
+        else:  # Depth is zero
+            return (None, score_position(board, AGENT_PIECE))
+    if maximizingPlayer:
+        value = -math.inf
+        column = random.choice(valid_moves)
+        for col in valid_moves:
+            row = get_next_open_row(board, col)
+            b_copy = board.copy()
+            drop_piece(b_copy, row, col, AGENT_PIECE)
+            new_score = minimax_alpha_beta(b_copy, depth - 1, alpha, beta, False)[1]
+            if new_score > value:
+                value = new_score
+                column = col
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return column, value
+
+    else:  # Minimizing player
+        value = math.inf
+        column = random.choice(valid_moves)
+        for col in valid_moves:
+            row = get_next_open_row(board, col)
+            b_copy = board.copy()
+            drop_piece(b_copy, row, col, PLAYER_PIECE)
+            new_score = minimax_alpha_beta(b_copy, depth - 1, alpha, beta, True)[1]
+            if new_score < value:
+                value = new_score
+                column = col
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+        return column, value
+
+def draw_board(board):
+    for c in range(COLUMNS):
+        for r in range(ROWS):
+            pygame.draw.rect(screen, (255,255,0), (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
+            pygame.draw.circle(screen, (255,255,255) , (
+            int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+
+    for c in range(COLUMNS):
+        for r in range(ROWS):
+            if board[r][c] == PLAYER_PIECE:
+                pygame.draw.circle(screen, (255,0,0), (
+                int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+            elif board[r][c] == AGENT_PIECE:
+                pygame.draw.circle(screen, (0,0,255), (
+                int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+    pygame.display.update()
 
 board = create_board()
 print_board(board)
@@ -311,134 +416,4 @@ while not game_over:
 
     if game_over:
         pygame.time.wait(3000)
-    
-def minimax(board, depth, maximizingPlayer):
 
-    valid_moves = get_valid_moves(board)
-    is_terminal = is_terminal_node(board)
-    if depth == 0 or is_terminal:
-        if is_terminal:
-            if winning_move(board, AGENT_PIECE):
-                return None, 100000000000000
-            elif winning_move(board, PLAYER_PIECE):
-                return None, -10000000000000
-            else:  # Game is over, no more valid moves
-                return None, 0
-        else:  # Depth is zero
-            return None, score_position(board, AGENT_PIECE)
-    if maximizingPlayer:
-        value = -math.inf
-        column = None
-        for col in valid_moves:
-            row = get_next_open_row(board, col)
-            if row is None:
-                continue
-            b_copy = board.copy()
-            drop_piece(b_copy, row, col, AGENT_PIECE)
-            new_score = minimax(b_copy, depth - 1, False)[1]
-            if new_score > value:
-                value = new_score
-                column = col
-        return column, value
-
-    else:  # Minimizing player
-        value = math.inf
-        column = None
-        for col in valid_moves:
-            row = get_next_open_row(board, col)
-            if row is None:
-                continue
-            b_copy = board.copy()
-            drop_piece(b_copy, row, col, PLAYER_PIECE)
-            new_score = minimax(b_copy, depth - 1, True)[1]
-            if new_score < value:
-                value = new_score
-                column = col
-        return column, value    
-
-def draw_board(board):
-    for c in range(COLUMNS):
-        for r in range(ROWS):
-            pygame.draw.rect(screen, (255,255,0), (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
-            pygame.draw.circle(screen, (255,255,255) , (
-            int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), RADIUS)
-
-    for c in range(COLUMNS):
-        for r in range(ROWS):
-            if board[r][c] == PLAYER_PIECE:
-                pygame.draw.circle(screen, (255,0,0), (
-                int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
-            elif board[r][c] == AGENT_PIECE:
-                pygame.draw.circle(screen, (0,0,255), (
-                int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
-    pygame.display.update()
-
-
-board = create_board()
-print_board(board)
-game_over = False
-
-pygame.init()
-
-SQUARESIZE = 80
-
-width = COLUMNS * SQUARESIZE
-height = (ROWS + 1) * SQUARESIZE
-
-size = (width, height)
-
-RADIUS = int(SQUARESIZE / 2 - 5)
-
-screen = pygame.display.set_mode(size)
-
-draw_board(board)
-pygame.display.update()
-
-myfont = pygame.font.SysFont("arial", 75)
-
-turn = random.randint(PLAYER, AI)
-
-def minimax_alpha_beta(board, depth, alpha, beta, maximizingPlayer):
-    valid_moves = get_valid_moves(board)
-    is_terminal = is_terminal_node(board)
-    if depth == 0 or is_terminal:
-        if is_terminal:
-            if winning_move(board, AGENT_PIECE):
-                return (None, 100000000000000)
-            elif winning_move(board, PLAYER_PIECE):
-                return (None, -10000000000000)
-            else:  # Game is over, no more valid moves
-                return (None, 0)
-        else:  # Depth is zero
-            return (None, score_position(board, AGENT_PIECE))
-    if maximizingPlayer:
-        value = -math.inf
-        column = random.choice(valid_moves)
-        for col in valid_moves:
-            row = get_next_open_row(board, col)
-            b_copy = board.copy()
-            drop_piece(b_copy, row, col, AGENT_PIECE)
-            new_score = minimax_alpha_beta(b_copy, depth - 1, alpha, beta, False)[1]
-            if new_score > value:
-                value = new_score
-                column = col
-            alpha = max(alpha, value)
-            if alpha >= beta:
-                break
-        return column, value
-
-    else:  # Minimizing player
-        value = math.inf
-        column = random.choice(valid_moves)
-        for col in valid_moves:
-            row = get_next_open_row(board, col)
-            b_copy = board.copy()
-            drop_piece(b_copy, row, col, PLAYER_PIECE)
-            new_score = minimax_alpha_beta(b_copy, depth - 1, alpha, beta, True)[1]
-            if new_score < value:
-                value = new_score
-                column = col
-            beta = min(beta, value)
-            if alpha >= beta:
-                break
-        return column, value
